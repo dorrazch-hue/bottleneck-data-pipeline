@@ -94,3 +94,34 @@
 - **Brique 1 validée en exécution réelle** : `nettoyage_erp` → 825 lignes ✅ ; `test_erp` → "Test réussi : erp_clean ne contient ni doublon ni valeur manquante" ✅
 - Point mineur observé : un WARN Kestra sur une extension DuckDB interne ("ion") au chargement — sans rapport avec nos scripts, sans impact sur l'exécution, à ignorer
 
+## ⚠️ Bug découvert en exécution réelle Kestra — lecture xlsx
+- `nettoyage_erp` + `test_erp` : SUCCESS en conditions réelles (825 lignes, test passé) — première confirmation que `read_xlsx()` fonctionne vraiment (pas testable dans mon sandbox, faute d'accès internet à l'extension DuckDB "excel")
+- `nettoyage_web` a échoué : `Failed to parse cell 'A198': Could not convert string 'bon-cadeau-25-euros' to DOUBLE`
+- Cause : DuckDB `read_xlsx()` devine un type unique par colonne. La colonne `sku` est presque toujours numérique, sauf pour un produit **"Bon cadeau de 25€"** dont le sku est le texte `bon-cadeau-25-euros`. DuckDB plante au lieu de traiter la colonne comme texte.
+- ⚠️ Vérifié avant de corriger : ce produit fait bien partie des 714 lignes déjà validées (ce n'est pas une erreur de données à exclure, c'est un vrai produit vendu) — il ne fallait donc pas le supprimer silencieusement (option `ignore_errors=true` aurait été plus simple mais aurait cassé le CA total)
+- **Correction** : `read_xlsx('web.xlsx', all_varchar = true)` (tout lire en texte) + `TRY_CAST(total_sales AS DOUBLE)` / `TRY_CAST(average_rating AS DOUBLE)` pour reconvertir explicitement les seules colonnes réellement numériques
+- Même correctif appliqué préventivement à `nettoyage_liaison.sql` (colonne `id_web` : mêmes valeurs textuelles repérées : `bon-cadeau-25-euros`, `13127-1`, `14680-1`) → `TRY_CAST(product_id AS BIGINT)`, `id_web` gardé en texte
+- Revalidé après correction : 714 lignes, CA total = 70 568.60 €, 30 vins premium — **identique aux résultats déjà validés**, rien n'a changé côté résultat, seule la robustesse de lecture est améliorée
+- `jointure.sql` n'a nécessité aucune modification (il sélectionnait déjà uniquement les colonnes utiles, pas de `SELECT *`)
+- Bon exemple à citer en soutenance sur le point de vigilance "réception de nouvelles sources de données" : la lecture de fichiers Excel bruts doit anticiper des colonnes au typage mixte
+
+## Incident — perte d'accès Kestra après une pause
+- Après une interruption de plusieurs jours, le conteneur `kestra` avait disparu (`docker compose ps` ne montrait plus que `postgres`, actif en continu) — probablement un arrêt du conteneur applicatif sans que le conteneur de base de données ne soit affecté
+- `docker compose up -d` a recréé le conteneur Kestra normalement
+- Ensuite : connexion impossible ("Invalid username or password"), alors que les identifiants étaient corrects. Cause : les identifiants du compte utilisateur, définis via la page de configuration initiale, sont stockés dans PostgreSQL — mais la base a persisté sans interruption, donc ce n'était pas une perte de compte, plutôt un identifiant mal mémorisé après la coupure
+- **Solution appliquée (méthode officielle Kestra, sans perte de données)** : définir des identifiants explicites directement dans `docker-compose.yml`, dans la section `KESTRA_CONFIGURATION > kestra > server > basic-auth` (présente mais commentée par défaut dans le template officiel). Le fichier de configuration prend toujours le pas sur les valeurs enregistrées via la page de setup.
+- Toutes les données (namespace `bottleneck`, fichiers, flow) sont restées intactes tout du long : elles vivent dans les volumes Docker persistants (`postgres-data`, `kestra-data`), indépendants du cycle de vie du conteneur applicatif
+
+## ✅ Brique "nettoyage" complète et validée en exécution réelle
+Après correction des bugs de lecture xlsx (all_varchar + TRY_CAST), les 6 tâches passent toutes au vert dans Kestra : `nettoyage_erp`, `test_erp`, `nettoyage_web`, `test_web`, `nettoyage_liaison`, `test_liaison`. Exécution complète en ~3 secondes.
+
+## Nettoyage final du projet avant dépôt GitHub
+- **Identifiants extraits** de `docker-compose.yml` vers un fichier `.env` (non versionné, listé dans `.gitignore`) : `POSTGRES_PASSWORD`, `KESTRA_USERNAME`, `KESTRA_PASSWORD`. Bonne pratique de sécurité — un dépôt public ne doit jamais contenir de mot de passe en clair.
+- **`pull_policy: always` retiré** : cette option forçait Docker à retélécharger l'image Kestra (~3 Go) à chaque démarrage, ce qui expliquait les temps d'attente longs pendant le développement, et a été la cause probable du décalage de version ayant provoqué le bug du dashboard (colonne "deleted" manquante en base). Sans cette ligne, Docker réutilise l'image déjà en cache localement.
+- Projet déposé sur GitHub : `https://github.com/dorrazch-hue/bottleneck-data-pipeline`
+
+## ✅ Jointure + calcul CA validés en exécution réelle
+10 tâches au total maintenant vertes dans Kestra : les 6 précédentes + `jointure`, `test_jointure`, `calcul_ca`, `test_ca`.
+- Le test de jointure vérifie : présence de résultats, absence de doublons (fan-out), cohérence de volumétrie
+- Le test de CA vérifie volontairement la **cohérence structurelle** (positif, non nul, somme détail = total) plutôt qu'une valeur fixe (70 568.60 €) — le pipeline doit rester valide avec les données du mois prochain, qui auront un CA différent
+

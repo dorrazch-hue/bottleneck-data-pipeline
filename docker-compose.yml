@@ -21,7 +21,6 @@ services:
 
   kestra:
     image: kestra/kestra:latest
-    pull_policy: always
     stop_grace_period: 6m
     user: "root"
     command: server standalone
