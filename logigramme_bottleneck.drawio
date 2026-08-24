@@ -1,0 +1,135 @@
+<mxfile host="app.diagrams.net" modified="2026-08-14T00:00:00.000Z" agent="Claude" version="24.0.0" type="device">
+  <diagram name="Logigramme BottleNeck" id="bottleneck-flow-v2">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1150" pageHeight="1560" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Start -->
+        <mxCell id="n1" value="Début du workflow" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="380" y="40" width="160" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- 3 sources -->
+        <mxCell id="n2" value="erp.xlsx" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="40" y="140" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n3" value="liaison.xlsx" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="380" y="140" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n4" value="web.xlsx" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="720" y="140" width="160" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- 3 nettoyages -->
+        <mxCell id="n5" value="Nettoyage erp.xlsx :&lt;br&gt;suppression NA + dédoublonnage" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="20" y="260" width="200" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="n6" value="Nettoyage liaison.xlsx :&lt;br&gt;suppression NA + dédoublonnage" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="360" y="260" width="200" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="n7" value="Nettoyage web.xlsx :&lt;br&gt;suppression NA + dédoublonnage" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="700" y="260" width="200" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- 3 tests -->
+        <mxCell id="n8" value="Test : absence doublons&lt;br&gt;et valeurs manquantes (erp)" style="rhombus;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="30" y="380" width="180" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="n9" value="Test : absence doublons&lt;br&gt;et valeurs manquantes (liaison)" style="rhombus;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="370" y="380" width="180" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="n10" value="Test : absence doublons&lt;br&gt;et valeurs manquantes (web)" style="rhombus;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="710" y="380" width="180" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Jointure -->
+        <mxCell id="n11" value="Jointure erp + web&lt;br&gt;via liaison.xlsx" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="340" y="530" width="240" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="n12" value="Test : cohérence de la&lt;br&gt;volumétrie après jointure" style="rhombus;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="330" y="650" width="260" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Calcul CA (séquentiel, sur données fusionnées) -->
+        <mxCell id="n13" value="Calcul du CA par produit&lt;br&gt;et du CA total (données fusionnées)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="330" y="800" width="260" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="n14" value="Test : cohérence&lt;br&gt;du CA calculé" style="rhombus;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="330" y="920" width="260" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Détection z-score (séquentiel, après calcul CA) -->
+        <mxCell id="n15" value="Détection vins premium (z-score &gt; 2)&lt;br&gt;et vins ordinaires sur les prix" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="310" y="1060" width="300" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="n16" value="Test : cohérence&lt;br&gt;du z-score" style="rhombus;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="330" y="1180" width="260" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- 3 extractions finales (branchement) -->
+        <mxCell id="n17" value="Extraction rapport CA&lt;br&gt;(.xlsx)" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1330" width="230" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n18" value="Extraction vins premium&lt;br&gt;(.csv)" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="340" y="1330" width="220" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n19" value="Extraction vins ordinaires&lt;br&gt;(.csv)" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="620" y="1330" width="230" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- End -->
+        <mxCell id="n20" value="Fin du workflow" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="380" y="1470" width="160" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Noeud d'erreur partagé (chemin KO de tous les tests) -->
+        <mxCell id="n21" value="Erreur détectée :&lt;br&gt;alerte équipe + arrêt du workflow" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="900" y="820" width="220" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Flux principal -->
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n1" target="n2"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n1" target="n3"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n1" target="n4"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n2" target="n5"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n3" target="n6"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n4" target="n7"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n5" target="n8"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n6" target="n9"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n7" target="n10"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="e10" value="OK" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n8" target="n11"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e11" value="OK" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n9" target="n11"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e12" value="OK" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n10" target="n11"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="e13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n11" target="n12"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e14" value="OK" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n12" target="n13"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="e15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n13" target="n14"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e16" value="OK" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n14" target="n15"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="e17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n15" target="n16"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="e18" value="OK" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n16" target="n17"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e19" value="OK" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n16" target="n18"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e20" value="OK" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n16" target="n19"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="e21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n17" target="n20"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n18" target="n20"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n19" target="n20"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- Chemins d'échec (KO) vers le noeud d'erreur partagé -->
+        <mxCell id="e24" value="KO" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#b85450;dashed=1;" edge="1" parent="1" source="n8" target="n21"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e25" value="KO" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#b85450;dashed=1;" edge="1" parent="1" source="n9" target="n21"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e26" value="KO" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#b85450;dashed=1;" edge="1" parent="1" source="n10" target="n21"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e27" value="KO" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#b85450;dashed=1;" edge="1" parent="1" source="n12" target="n21"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e28" value="KO" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#b85450;dashed=1;" edge="1" parent="1" source="n14" target="n21"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e29" value="KO" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#b85450;dashed=1;" edge="1" parent="1" source="n16" target="n21"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

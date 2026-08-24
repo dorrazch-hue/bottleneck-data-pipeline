@@ -1,0 +1,5 @@
+# Identifiants et secrets - ne jamais committer
+.env
+
+# Fichiers système
+.DS_Store
