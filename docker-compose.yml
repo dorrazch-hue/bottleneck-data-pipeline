@@ -20,7 +20,7 @@ services:
       retries: 10
 
   kestra:
-    image: kestra/kestra:latest
+    image: kestra/kestra:1.3.34
     stop_grace_period: 6m
     user: "root"
     command: server standalone

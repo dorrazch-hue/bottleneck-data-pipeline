@@ -1,0 +1,156 @@
+id: bottleneck_pipeline
+namespace: bottleneck
+
+triggers:
+  - id: declenchement_mensuel
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 9 15 * *"
+
+errors:
+  - id: alerte_echec_pipeline
+    type: io.kestra.plugin.core.log.Log
+    message: "Échec du pipeline BottleNeck (exécution {{ execution.id }}, tâche : {{ task.id }}) — intervention de l'équipe Data nécessaire."
+    level: ERROR
+
+tasks:
+  - id: pipeline
+    type: io.kestra.plugin.core.flow.WorkingDirectory
+    namespaceFiles:
+      enabled: true
+    tasks:
+      - id: nettoyage_erp
+        type: io.kestra.plugin.jdbc.duckdb.Queries
+        sql: "{{ read('scripts/nettoyage_erp.sql') }}"
+        fetchType: FETCH
+        retry:
+          type: constant
+          maxAttempt: 3
+          interval: PT10S
+
+      - id: test_erp
+        type: io.kestra.plugin.jdbc.duckdb.Queries
+        sql: "{{ read('scripts/test_erp.sql') }}"
+        fetchType: FETCH
+        retry:
+          type: constant
+          maxAttempt: 3
+          interval: PT10S
+
+      - id: nettoyage_web
+        type: io.kestra.plugin.jdbc.duckdb.Queries
+        sql: "{{ read('scripts/nettoyage_web.sql') }}"
+        fetchType: FETCH
+        retry:
+          type: constant
+          maxAttempt: 3
+          interval: PT10S
+
+      - id: test_web
+        type: io.kestra.plugin.jdbc.duckdb.Queries
+        sql: "{{ read('scripts/test_web.sql') }}"
+        fetchType: FETCH
+        retry:
+          type: constant
+          maxAttempt: 3
+          interval: PT10S
+
+      - id: nettoyage_liaison
+        type: io.kestra.plugin.jdbc.duckdb.Queries
+        sql: "{{ read('scripts/nettoyage_liaison.sql') }}"
+        fetchType: FETCH
+        retry:
+          type: constant
+          maxAttempt: 3
+          interval: PT10S
+
+      - id: test_liaison
+        type: io.kestra.plugin.jdbc.duckdb.Queries
+        sql: "{{ read('scripts/test_liaison.sql') }}"
+        fetchType: FETCH
+        retry:
+          type: constant
+          maxAttempt: 3
+          interval: PT10S
+
+      - id: jointure
+        type: io.kestra.plugin.jdbc.duckdb.Queries
+        sql: "{{ read('scripts/jointure.sql') }}"
+        fetchType: FETCH
+        retry:
+          type: constant
+          maxAttempt: 3
+          interval: PT10S
+
+      - id: test_jointure
+        type: io.kestra.plugin.jdbc.duckdb.Queries
+        sql: "{{ read('scripts/test_jointure.sql') }}"
+        fetchType: FETCH
+        retry:
+          type: constant
+          maxAttempt: 3
+          interval: PT10S
+
+      - id: calcul_ca
+        type: io.kestra.plugin.jdbc.duckdb.Queries
+        sql: "{{ read('scripts/calcul_ca.sql') }}"
+        fetchType: FETCH
+        retry:
+          type: constant
+          maxAttempt: 3
+          interval: PT10S
+
+      - id: test_ca
+        type: io.kestra.plugin.jdbc.duckdb.Queries
+        sql: "{{ read('scripts/test_ca.sql') }}"
+        fetchType: FETCH
+        retry:
+          type: constant
+          maxAttempt: 3
+          interval: PT10S
+
+      - id: zscore
+        type: io.kestra.plugin.scripts.python.Script
+        taskRunner:
+          type: io.kestra.plugin.core.runner.Process
+        script: "{{ read('scripts/zscore_vins.py') }}"
+        outputFiles:
+          - vins_premium.csv
+          - vins_ordinaires.csv
+        retry:
+          type: constant
+          maxAttempt: 3
+          interval: PT10S
+
+      - id: test_zscore
+        type: io.kestra.plugin.jdbc.duckdb.Queries
+        sql: "{{ read('scripts/test_zscore.sql') }}"
+        fetchType: FETCH
+        retry:
+          type: constant
+          maxAttempt: 3
+          interval: PT10S
+
+      - id: extraction_rapport_ca
+        type: io.kestra.plugin.jdbc.duckdb.Queries
+        sql: "{{ read('scripts/extraction_rapport_ca.sql') }}"
+        fetchType: FETCH
+        outputFiles:
+          - rapport_ca_bottleneck.xlsx
+        retry:
+          type: constant
+          maxAttempt: 3
+          interval: PT10S
+
+  - id: verification_finale
+    type: io.kestra.plugin.core.flow.Switch
+    value: "{{ tasks.test_zscore.state == 'SUCCESS' }}"
+    cases:
+      "true":
+        - id: succes_pipeline
+          type: io.kestra.plugin.core.log.Log
+          message: "Pipeline BottleNeck terminé avec succès : rapport CA + extractions vins premium/ordinaires disponibles."
+      "false":
+        - id: anomalie_pipeline
+          type: io.kestra.plugin.core.log.Log
+          message: "Anomalie : résultat du test z-score manquant."
+          level: WARN
