@@ -1,0 +1,31 @@
+sku,post_title,total_sales,average_rating,product_id,price,stock_quantity,stock_status,z_score,categorie
+15940,Champagne Egly-Ouriet Grand Cru Millésimé 2008,5.0,0.0,4352.0,225.0,0.0,outofstock,6.9220866302516795,premium
+14581,David Duband Charmes-Chambertin Grand Cru 2014,0.0,0.0,5001.0,217.5,20.0,instock,6.652404557692894,premium
+14983,Coteaux Champenois Egly-Ouriet Ambonnay Rouge 2016,3.0,0.0,5892.0,191.3,10.0,instock,5.710315184220872,premium
+3510,Cognac Frapin VIP XO,13.0,0.0,4402.0,176.0,8.0,instock,5.160163756200951,premium
+15185,Camille Giroud Clos de Vougeot 2016,0.0,0.0,5767.0,175.0,12.0,instock,5.124206146526446,premium
+7819,Cognac Frapin Château de Fontpinot 1989 20 Ans d'Age,0.0,0.0,4406.0,157.0,3.0,instock,4.4769691723853615,premium
+14220,Domaine Des Croix Corton Charlemagne Grand Cru 2016,5.0,0.0,4904.0,137.0,13.0,instock,3.7578169788952684,premium
+14923,Champagne Gosset Célébris Vintage 2007,2.0,0.0,6126.0,135.0,10.0,instock,3.685901759546259,premium
+12589,Champagne Egly-Ouriet Grand Cru Blanc de Noirs,11.0,0.0,4355.0,126.5,2.0,instock,3.3802620773129695,premium
+14915,Domaine Weinbach Gewurztraminer Grand Cru Furstentum SGN 2010 1/2,0.0,0.0,5612.0,124.8,12.0,instock,3.319134140866312,premium
+14775,Wemyss Malts Single Cask Scotch Whisky Choc 'n' Nut Pretzel 2001 Bunnahabhain,0.0,0.0,5917.0,122.0,4.0,instock,3.2184528337776985,premium
+15072,Domaine des Comtes Lafon Volnay 1er Cru Santenots du Milieu 2016,0.0,0.0,6213.0,121.0,7.0,instock,3.1824952241031936,premium
+15070,Domaine des Comtes Lafon Volnay 1er Cru Champans 2016,0.0,0.0,6216.0,121.0,6.0,instock,3.1824952241031936,premium
+15126,Domaine Clerget Echezeaux Grand Cru En Orveaux 2015,0.0,0.0,6202.0,116.4,14.0,instock,3.0170902196004725,premium
+13996,Domaine des Comtes Lafon Volnay 1er Cru Santenots du Milieu 2015,2.0,0.0,6212.0,115.0,2.0,instock,2.9667495660561656,premium
+12790,Domaine des Comtes Lafon Volnay 1er Cru Champans 2014,0.0,0.0,6215.0,115.0,4.0,instock,2.9667495660561656,premium
+14773,Wemyss Malts Single Cask Scotch Whisky Chai Caramel Latte 2002 Craigellachie,0.0,0.0,5918.0,114.0,8.0,instock,2.930791956381661,premium
+13914,Champagne Agrapart &amp; Fils L'Avizoise Extra Brut Blanc de Blancs Grand Cru 2012,0.0,0.0,5025.0,112.0,0.0,outofstock,2.8588767370326518,premium
+12857,Château de Meursault Puligny-Montrachet 1er Cru Champ Canet 2014,0.0,0.0,4582.0,109.6,7.0,instock,2.7725784738138404,premium
+3507,Cognac Frapin Château de Fontpinot XO,2.0,0.0,4404.0,108.5,2.0,instock,2.7330251031718853,premium
+14596,David Duband Chambolle-Musigny 1er Cru Les Sentiers 2016,0.0,0.0,6201.0,105.6,7.0,instock,2.6287480351158217,premium
+12791,Domaine des Comtes Lafon Volnay 1er Cru Santenots du Milieu 2014,0.0,0.0,5007.0,105.0,17.0,instock,2.6071734693111193,premium
+11602,Domaine des Comtes Lafon Volnay 1er Cru Santenots du Milieu 2013,0.0,0.0,5008.0,105.0,10.0,instock,2.6071734693111193,premium
+3509,Cognac Frapin Cigar Blend,1.0,0.0,4407.0,104.0,6.0,instock,2.5712158596366144,premium
+14805,Domaine Des Croix Corton Grand Cru Les Grèves 2017,0.0,0.0,4903.0,102.3,20.0,instock,2.510087923189957,premium
+15382,Zind-Humbrecht Riesling Grand Cru Rangen De Thann Clos Saint-Urbain 2017,0.0,0.0,4115.0,100.0,11.0,instock,2.4273854209385957,premium
+11601,Domaine des Comtes Lafon Volnay 1er Cru Champans 2013,0.0,0.0,6214.0,99.0,7.0,instock,2.391427811264091,premium
+14774,Wemyss Malts Single Cask Scotch Whisky Chocolate Moka Cake 2005 Strathclyde,0.0,0.0,5916.0,93.0,3.0,instock,2.175682153217063,premium
+19822,Tempier Bandol Cabassaou 2017,0.0,0.0,5565.0,92.0,0.0,outofstock,2.1397245435425587,premium
+11668,Zind-Humbrecht Pinot Gris Grand Cru Rangen De Thann Clos Saint-Urbain 2012,0.0,0.0,4132.0,88.4,5.0,instock,2.010277148714342,premium
