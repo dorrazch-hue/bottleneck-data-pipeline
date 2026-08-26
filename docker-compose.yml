@@ -20,10 +20,10 @@ services:
       retries: 10
 
   kestra:
-    # "latest-lts" est un tag officiel Kestra plus stable que "latest" :
-    # il ne change qu'environ tous les 6 mois (au lieu de changer à chaque
-    # nouvelle version), pour une meilleure reproductibilité de l'environnement.
-    image: kestra/kestra:latest-lts
+    # Version précise (et non "latest"/"latest-lts") pour une reproductibilité
+    # totale de l'environnement -- vérifiée existante sur les releases GitHub
+    # officielles de Kestra au moment du développement (v1.3.33, août 2026).
+    image: kestra/kestra:v1.3.33
     stop_grace_period: 6m
     user: "root"
     command: server standalone
