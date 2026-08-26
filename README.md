@@ -92,8 +92,3 @@ Une fois l'exécution terminée (statut vert), allez dans l'onglet **Outputs** d
 - Un **Switch** final vérifie la complétion du pipeline
 
 Le détail des choix techniques et des difficultés rencontrées (et comment elles ont été résolues) est documenté dans [`journal_de_bord.md`](./journal_de_bord.md).
-
-## Limitations connues
-
-- Le fichier `.env` n'est jamais commité (voir `.gitignore`) — chaque personne qui clone le dépôt doit créer le sien à partir de `.env.example`
-- L'installation actuelle utilise Kestra en mode `standalone` (un seul worker) — adaptée à un usage local/démonstration, pas à un déploiement de production à fort volume
