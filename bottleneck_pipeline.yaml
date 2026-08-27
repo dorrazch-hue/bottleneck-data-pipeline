@@ -13,65 +13,80 @@ errors:
     level: ERROR
 
 tasks:
-  - id: pipeline
+  - id: nettoyage_parallele
+    type: io.kestra.plugin.core.flow.Parallel
+    tasks:
+      - id: branche_erp
+        type: io.kestra.plugin.core.flow.WorkingDirectory
+        namespaceFiles:
+          enabled: true
+        tasks:
+          - id: nettoyage_erp
+            type: io.kestra.plugin.jdbc.duckdb.Queries
+            sql: "{{ read('scripts/nettoyage_erp.sql') }}"
+            fetchType: FETCH
+            retry:
+              type: constant
+              maxAttempt: 3
+              interval: PT10S
+          - id: test_erp
+            type: io.kestra.plugin.jdbc.duckdb.Queries
+            sql: "{{ read('scripts/test_erp.sql') }}"
+            fetchType: FETCH
+            retry:
+              type: constant
+              maxAttempt: 3
+              interval: PT10S
+
+      - id: branche_web
+        type: io.kestra.plugin.core.flow.WorkingDirectory
+        namespaceFiles:
+          enabled: true
+        tasks:
+          - id: nettoyage_web
+            type: io.kestra.plugin.jdbc.duckdb.Queries
+            sql: "{{ read('scripts/nettoyage_web.sql') }}"
+            fetchType: FETCH
+            retry:
+              type: constant
+              maxAttempt: 3
+              interval: PT10S
+          - id: test_web
+            type: io.kestra.plugin.jdbc.duckdb.Queries
+            sql: "{{ read('scripts/test_web.sql') }}"
+            fetchType: FETCH
+            retry:
+              type: constant
+              maxAttempt: 3
+              interval: PT10S
+
+      - id: branche_liaison
+        type: io.kestra.plugin.core.flow.WorkingDirectory
+        namespaceFiles:
+          enabled: true
+        tasks:
+          - id: nettoyage_liaison
+            type: io.kestra.plugin.jdbc.duckdb.Queries
+            sql: "{{ read('scripts/nettoyage_liaison.sql') }}"
+            fetchType: FETCH
+            retry:
+              type: constant
+              maxAttempt: 3
+              interval: PT10S
+          - id: test_liaison
+            type: io.kestra.plugin.jdbc.duckdb.Queries
+            sql: "{{ read('scripts/test_liaison.sql') }}"
+            fetchType: FETCH
+            retry:
+              type: constant
+              maxAttempt: 3
+              interval: PT10S
+
+  - id: pipeline_suite
     type: io.kestra.plugin.core.flow.WorkingDirectory
     namespaceFiles:
       enabled: true
     tasks:
-      - id: nettoyage_erp
-        type: io.kestra.plugin.jdbc.duckdb.Queries
-        sql: "{{ read('scripts/nettoyage_erp.sql') }}"
-        fetchType: FETCH
-        retry:
-          type: constant
-          maxAttempt: 3
-          interval: PT10S
-
-      - id: test_erp
-        type: io.kestra.plugin.jdbc.duckdb.Queries
-        sql: "{{ read('scripts/test_erp.sql') }}"
-        fetchType: FETCH
-        retry:
-          type: constant
-          maxAttempt: 3
-          interval: PT10S
-
-      - id: nettoyage_web
-        type: io.kestra.plugin.jdbc.duckdb.Queries
-        sql: "{{ read('scripts/nettoyage_web.sql') }}"
-        fetchType: FETCH
-        retry:
-          type: constant
-          maxAttempt: 3
-          interval: PT10S
-
-      - id: test_web
-        type: io.kestra.plugin.jdbc.duckdb.Queries
-        sql: "{{ read('scripts/test_web.sql') }}"
-        fetchType: FETCH
-        retry:
-          type: constant
-          maxAttempt: 3
-          interval: PT10S
-
-      - id: nettoyage_liaison
-        type: io.kestra.plugin.jdbc.duckdb.Queries
-        sql: "{{ read('scripts/nettoyage_liaison.sql') }}"
-        fetchType: FETCH
-        retry:
-          type: constant
-          maxAttempt: 3
-          interval: PT10S
-
-      - id: test_liaison
-        type: io.kestra.plugin.jdbc.duckdb.Queries
-        sql: "{{ read('scripts/test_liaison.sql') }}"
-        fetchType: FETCH
-        retry:
-          type: constant
-          maxAttempt: 3
-          interval: PT10S
-
       - id: jointure
         type: io.kestra.plugin.jdbc.duckdb.Queries
         sql: "{{ read('scripts/jointure.sql') }}"
@@ -113,9 +128,6 @@ tasks:
         taskRunner:
           type: io.kestra.plugin.core.runner.Process
         script: "{{ read('scripts/zscore_vins.py') }}"
-        outputFiles:
-          - vins_premium.csv
-          - vins_ordinaires.csv
         retry:
           type: constant
           maxAttempt: 3
@@ -141,16 +153,40 @@ tasks:
           maxAttempt: 3
           interval: PT10S
 
-  - id: verification_finale
+      - id: comptage_premium
+        type: io.kestra.plugin.jdbc.duckdb.Queries
+        sql: "{{ read('scripts/comptage_premium.sql') }}"
+        fetchType: FETCH
+        retry:
+          type: constant
+          maxAttempt: 3
+          interval: PT10S
+
+  - id: routage_extraction_vins
     type: io.kestra.plugin.core.flow.Switch
-    value: "{{ tasks.test_zscore.state == 'SUCCESS' }}"
+    value: "{{ outputs.comptage_premium.rows[0].nb_premium > 0 }}"
     cases:
       "true":
-        - id: succes_pipeline
-          type: io.kestra.plugin.core.log.Log
-          message: "Pipeline BottleNeck terminé avec succès : rapport CA + extractions vins premium/ordinaires disponibles."
+        - id: extraction_vins_premium
+          type: io.kestra.plugin.jdbc.duckdb.Queries
+          sql: "{{ read('scripts/extraction_vins_premium.sql') }}"
+          fetchType: FETCH
+          outputFiles:
+            - vins_premium_final.csv
+        - id: extraction_vins_ordinaires
+          type: io.kestra.plugin.jdbc.duckdb.Queries
+          sql: "{{ read('scripts/extraction_vins_ordinaires.sql') }}"
+          fetchType: FETCH
+          outputFiles:
+            - vins_ordinaires_final.csv
       "false":
-        - id: anomalie_pipeline
+        - id: extraction_vins_ordinaires_seule
+          type: io.kestra.plugin.jdbc.duckdb.Queries
+          sql: "{{ read('scripts/extraction_vins_ordinaires.sql') }}"
+          fetchType: FETCH
+          outputFiles:
+            - vins_ordinaires_final.csv
+        - id: alerte_aucun_premium
           type: io.kestra.plugin.core.log.Log
-          message: "Anomalie : résultat du test z-score manquant."
+          message: "Aucun vin premium détecté ce mois-ci (z-score > 2)."
           level: WARN
