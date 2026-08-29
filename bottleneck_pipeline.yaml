@@ -153,18 +153,28 @@ tasks:
           maxAttempt: 3
           interval: PT10S
 
-      - id: comptage_premium
-        type: io.kestra.plugin.jdbc.duckdb.Queries
-        sql: "{{ read('scripts/comptage_premium.sql') }}"
-        fetchType: FETCH
-        retry:
-          type: constant
-          maxAttempt: 3
-          interval: PT10S
+  - id: comptage_premium
+    type: io.kestra.plugin.jdbc.duckdb.Queries
+    sql: "{{ read('scripts/comptage_premium.sql') }}"
+    fetchType: FETCH
+    retry:
+      type: constant
+      maxAttempt: 3
+      interval: PT10S
+
+  - id: verification_premium_existe
+    type: io.kestra.plugin.jdbc.duckdb.Queries
+    sql: "{{ read('scripts/verification_premium_existe.sql') }}"
+    fetchType: FETCH
+    allowFailure: true
+    retry:
+      type: constant
+      maxAttempt: 3
+      interval: PT10S
 
   - id: routage_extraction_vins
     type: io.kestra.plugin.core.flow.Switch
-    value: "{{ outputs.comptage_premium.rows[0].nb_premium > 0 }}"
+    value: "{{ tasks.verification_premium_existe.state == 'SUCCESS' }}"
     cases:
       "true":
         - id: extraction_vins_premium
@@ -173,12 +183,20 @@ tasks:
           fetchType: FETCH
           outputFiles:
             - vins_premium_final.csv
+          retry:
+            type: constant
+            maxAttempt: 3
+            interval: PT10S
         - id: extraction_vins_ordinaires
           type: io.kestra.plugin.jdbc.duckdb.Queries
           sql: "{{ read('scripts/extraction_vins_ordinaires.sql') }}"
           fetchType: FETCH
           outputFiles:
             - vins_ordinaires_final.csv
+          retry:
+            type: constant
+            maxAttempt: 3
+            interval: PT10S
       "false":
         - id: extraction_vins_ordinaires_seule
           type: io.kestra.plugin.jdbc.duckdb.Queries
@@ -186,7 +204,11 @@ tasks:
           fetchType: FETCH
           outputFiles:
             - vins_ordinaires_final.csv
+          retry:
+            type: constant
+            maxAttempt: 3
+            interval: PT10S
         - id: alerte_aucun_premium
           type: io.kestra.plugin.core.log.Log
-          message: "Aucun vin premium détecté ce mois-ci (z-score > 2)."
+          message: "Aucun vin premium détecté ce mois-ci (z-score > 2) — comptage_premium a renvoyé 0."
           level: WARN
