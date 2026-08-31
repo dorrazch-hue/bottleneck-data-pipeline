@@ -6,14 +6,27 @@ z-score = (prix du vin - moyenne des prix) / (écart-type des prix)
 Un vin est considéré "premium" si son z-score > 2
 
 Version sans dépendance externe (uniquement la bibliothèque standard
-Python : csv, statistics) — évite tout besoin d'installer pandas.
+Python : csv, statistics, os).
 """
 
 import csv
 import statistics
+import os
+
+# Découverte importante : les tâches SQL DuckDB de Kestra tournent toutes
+# dans le même processus Java et partagent donc son dossier courant /app
+# pour les chemins relatifs -- contrairement aux tâches Python (Process
+# runner), qui ont leur propre dossier temporaire séparé. C'est là que
+# jointure.sql écrit réellement fusion.csv.
+CANDIDATS = ["/app/fusion.csv", "fusion.csv"]
+fusion_path = next((p for p in CANDIDATS if os.path.exists(p)), None)
+if fusion_path is None:
+    raise FileNotFoundError(f"fusion.csv introuvable. Emplacements testés : {CANDIDATS}")
+
+working_dir = os.path.dirname(fusion_path) or "."
 
 # Chargement des données fusionnées (produites par jointure.sql)
-with open("fusion.csv", newline="", encoding="utf-8") as f:
+with open(fusion_path, newline="", encoding="utf-8") as f:
     reader = csv.DictReader(f)
     rows = list(reader)
 
@@ -33,18 +46,20 @@ vins_ordinaires = sorted([r for r in rows if r["categorie"] == "ordinaire"], key
 
 fieldnames = list(rows[0].keys())
 
-# Export des 2 extractions finales
-with open("vins_premium.csv", "w", newline="", encoding="utf-8") as f:
+# Export des 2 extractions finales, dans le même dossier que fusion.csv
+# (/app), pour que test_zscore (une tâche SQL DuckDB) les retrouve
+with open(os.path.join(working_dir, "vins_premium.csv"), "w", newline="", encoding="utf-8") as f:
     writer = csv.DictWriter(f, fieldnames=fieldnames)
     writer.writeheader()
     writer.writerows(vins_premium)
 
-with open("vins_ordinaires.csv", "w", newline="", encoding="utf-8") as f:
+with open(os.path.join(working_dir, "vins_ordinaires.csv"), "w", newline="", encoding="utf-8") as f:
     writer = csv.DictWriter(f, fieldnames=fieldnames)
     writer.writeheader()
     writer.writerows(vins_ordinaires)
 
 # Vérification (utile pour le test de cohérence du z-score qui suivra cette tâche)
+print(f"fusion.csv trouvé ici : {fusion_path}")
 print(f"Nombre total de produits analysés : {len(rows)}")
 print(f"Moyenne des prix : {moyenne_prix:.2f} €")
 print(f"Écart-type des prix : {ecart_type_prix:.2f} €")
